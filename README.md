@@ -3,7 +3,7 @@
 Official code for the paper **"DermKG: A Concept-Centric Knowledge Graph for Interpretable Skin Disease Diagnosis from Dermatological Morphology"** (IEEE EMBC 2027, under review).
 
 <p align="center">
-  <img src="figures_kg/kg07_whole_graph.png" width="520" alt="DermKG whole graph">
+  <img src="kg07_whole_graph.png" width="520" alt="DermKG whole graph">
 </p>
 
 Dermatologists describe lesions with a standardized morphological lexicon (papule, plaque, scale, erythema, ...). DermKG turns this lexicon into a knowledge graph that links dermatologist-annotated concepts to diseases, a three-level diagnostic hierarchy and clinical morphology rules, and uses it to answer two questions:
