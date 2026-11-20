@@ -11,6 +11,11 @@ Dermatologists describe lesions with a standardized morphological lexicon (papul
 1. **How much diagnostic information do morphological concepts carry?**
 2. **How can concept-to-diagnosis knowledge be represented and used for interpretable diagnosis?**
 
+## News
+
+- **2026-11**: Fitzpatrick17k images obtained. An image-based extension of DermKG is in development (see [Roadmap](#roadmap)).
+- **2026-11**: Code for the concept-only version (EMBC 2027 submission) released.
+
 ## Highlights
 
 - **DermKG**: 3,452 nodes of 8 types and 19,365 edges of 11 relation types, built from the SkinCon annotations of Fitzpatrick17k (3,230 images, 48 concepts, 113 diseases).
@@ -24,15 +29,17 @@ Dermatologists describe lesions with a standardized morphological lexicon (papul
 
 ```
 DermKG/
-├── dermkg_build.ipynb            # 1. build the knowledge graph (no images needed)
-├── paper1_hierarchical.ipynb     # 2. main experiments: ceiling, baselines, KG models, DermKG-Net
-├── paper1_figures.ipynb          # 3. 31 publication figures (PDF + PNG, one per cell)
+├── skincon_dp.ipynb              # 0. data preparation: merge SkinCon and Fitzpatrick17k, filter, split
+├── skincon_kg_build.ipynb        # (legacy) first KG prototype, superseded by dermkg_build.ipynb
+├── dermkg_build.ipynb            # 1. build the knowledge graph
+├── hierarchical.ipynb            # 2. main experiments: ceiling, baselines, KG models, DermKG-Net
+├── figures.ipynb                 # 3. publication figures (PDF + PNG, one per cell)
 ├── dermkg_visualization.ipynb    # 4. KG visualizations from one node to the whole graph
-├── paper1_experiments.ipynb      # (optional) earlier 113-class disease-level experiments
+├── experiments.ipynb             # (optional) earlier 113-class disease-level experiments
 ├── image.csv                     # SkinCon concept annotations (download, see below)
 ├── fitzpatrick17k.csv            # Fitzpatrick17k labels (download, see below)
-├── data/dermkg/                  # generated: graph, rules, split, triples
-├── results/paper1_hier/          # generated: metrics, probabilities, bootstrap results
+├── data/                         # generated: graph, rules, split, triples
+├── results/                      # generated: metrics, probabilities, bootstrap results
 ├── figures_paper1/               # generated: paper figures + captions.md
 └── figures_kg/                   # generated: KG visualizations + interactive HTML
 ```
@@ -50,7 +57,7 @@ Users in mainland China can add `-i https://pypi.tuna.tsinghua.edu.cn/simple` to
 
 ## Data
 
-DermKG uses only the concept annotations and labels, **no images are required**.
+The concept-only version uses the concept annotations and labels only. **No images are required** to reproduce the EMBC 2027 submission.
 
 | File | Source | Notes |
 |---|---|---|
@@ -59,18 +66,21 @@ DermKG uses only the concept annotations and labels, **no images are required**.
 
 Place both files in the repository root. SkinCon `ImageID` (without `.jpg`) matches Fitzpatrick17k `md5hash`. Images flagged "Do not consider this image" by the annotating dermatologists are removed, leaving 3,230 images.
 
+Many of the original image URLs in `fitzpatrick17k.csv` are no longer reachable. The image-based extension uses the full image set, which can be requested from the Fitzpatrick17k authors through the link in their repository.
+
 ## Quick start
 
 Run the notebooks in order:
 
 ```text
+0. skincon_dp.ipynb            ->  data/
 1. dermkg_build.ipynb          ->  data/dermkg/
-2. paper1_hierarchical.ipynb   ->  results/paper1_hier/
-3. paper1_figures.ipynb        ->  figures_paper1/
+2. hierarchical.ipynb          ->  results/
+3. figures.ipynb               ->  figures_paper1/
 4. dermkg_visualization.ipynb  ->  figures_kg/
 ```
 
-Steps 1 and 2 take a few minutes on a laptop CPU; DermKG-Net (4 variants x 3 seeds) takes about 2 minutes on CPU. Set `RUN_GNN = False` in `paper1_hierarchical.ipynb` to skip it.
+Steps 0 to 2 take a few minutes on a laptop CPU; DermKG-Net (4 variants x 3 seeds) takes about 2 minutes on CPU. Set `RUN_GNN = False` in `hierarchical.ipynb` to skip it.
 
 ## DermKG schema
 
@@ -94,7 +104,7 @@ Clinical rules are conjunctions of disjunctive concept clauses, for example
 ```text
 R01  Telangiectasia AND (Papule OR Nodule)  ->  basal cell carcinoma
 R03  Burrow                                 ->  scabies
-R13  Friable AND (Papule OR Nodule)          ->  pyogenic granuloma
+R13  Friable AND (Papule OR Nodule)         ->  pyogenic granuloma
 ```
 
 Each rule is validated on the training split by support, precision and lift, and assigned a strength: strong (lift >= 5, support >= 10), moderate (lift >= 2) or weak (lift >= 1).
@@ -137,9 +147,27 @@ Concept-only ceilings (in-sample oracle):
 
 Concepts are provided by dermatologists, so results are an upper bound for automated pipelines. The expert rules were curated from textbook morphology and validated statistically but have not yet been reviewed by an independent dermatologist panel. Fitzpatrick17k labels come from online atlases rather than biopsy-confirmed diagnoses.
 
+## Roadmap
+
+The concept-only version assumes that expert concept annotations are available at test time, which is rarely the case in practice. The next version removes this assumption by adding images:
+
+- [x] Concept-only DermKG and DermKG-Net (EMBC 2027 submission)
+- [x] Full Fitzpatrick17k image set obtained
+- [ ] Image preprocessing: integrity check, near-duplicate removal, leakage-free splits
+- [ ] Image-to-concept prediction with a frozen dermatology foundation model
+- [ ] KG-guided recognition from images, including long-tail and unseen diseases
+- [ ] Gap analysis between predicted and expert-annotated concepts
+
 ## Citation
 
-Code for the paper **"DermKG: A Concept-Centric Knowledge Graph for Interpretable Skin Disease Diagnosis from Dermatological Morphology"** (under review).
+```bibtex
+@inproceedings{huang2027dermkg,
+  author    = {Huang, Cheng},
+  title     = {{DermKG}: A Concept-Centric Knowledge Graph for Interpretable Skin Disease Diagnosis from Dermatological Morphology},
+  booktitle = {Proc. IEEE Engineering in Medicine and Biology Conference (EMBC)},
+  year      = {2027}
+}
+```
 
 Please also cite the datasets:
 
